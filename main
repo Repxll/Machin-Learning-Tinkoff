@@ -1,0 +1,46 @@
+# Импортируем библиотеки
+from codecs import open  # Чтение файла
+import re  # Очищение текста
+import random
+
+# Читаем данные
+article_paragraphs = open("text.txt", "r", "utf-8")
+
+article_text = ''
+# Избавляемся от параграфов
+for para in article_paragraphs:
+    article_text += str(para)
+# Понижаем регистр
+article_text = article_text.lower()
+# Фильтруем текст
+article_text = re.sub(r'[^А-Яа-яЁе ]', '', article_text)
+# Токенизация
+words_tokens = article_text.split()
+
+######## Создаем триграммы ########################
+
+ngrams = {}
+words = 3
+
+for i in range(len(words_tokens) - words):
+    seq = ' '.join(words_tokens[i:i + words])
+    print(seq)
+    if seq not in ngrams.keys():
+        ngrams[seq] = []
+    ngrams[seq].append(words_tokens[i + words])
+
+######## ГЕНЕРАЦИЯ ##################################
+a = random.randint(0, len(words_tokens))
+
+curr_sequence = ' '.join(words_tokens[a:a + words])
+output = curr_sequence
+for i in range(200):
+    if curr_sequence not in ngrams.keys():
+        break
+    possible_words = ngrams[curr_sequence]
+    next_word = possible_words[random.randrange(len(possible_words))]
+    output += ' ' + next_word
+    seq_words = output.split()
+    curr_sequence = ' '.join(seq_words[len(seq_words) - words:len(seq_words)])
+
+print(output)
